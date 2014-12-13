@@ -1,7 +1,6 @@
 #include "dynamic.h"
 
-#define maxMemory 4999;
-#define usedFlagValue = 8732;
+#define usedFlagValue 8732
 /*
 *	predefined macros, these macros make it possible to tell where the error was
 */
@@ -13,7 +12,7 @@
 static Header base[2]; /* This is the empty list */
 static Header *smallfreep = NULL;	/*this is where the free list will begin for small free blocks */
 static Header *largefreep = NULL;	/*this is where the free list will begin for large free blocks */
-char virtualMemory[5000] = NULL;
+char virtualMemory[5000];
 static short int smallbreakpoint = 0;
 static short int largebreakpoint = 5000;
 
@@ -21,7 +20,7 @@ static short int largebreakpoint = 5000;
 *	myMalloc is supposed to return a pointer to a free space in memory, so that segmentation faults become impossible. 
 */
 
-void *myMalloc(unsigned nBytes, const char file, const int line){
+void *myMalloc(unsigned nBytes, const char* file, const int line){
 
 	Header *p, *prevp;
 	Header *myMorecore(unsigned);
@@ -44,9 +43,9 @@ void *myMalloc(unsigned nBytes, const char file, const int line){
 
 	/* This is the case in which the free linked list is empty, here the size is naturally 0 and the ptr points to itself*/
 	if((prevp = *freep) == NULL){
-		base[difference].s.ptr = *freep = prevp = &base;
+		base[difference].s.ptr = *freep = prevp = base+difference;
 		base[difference].s.size = 0;
-		base[difference].s.usedFlag = usedFlagValue;
+		base[difference].s.usedFlag =(short int) usedFlagValue;
 	}
 	/* Now we need to traverse the free list and retrieve a formidable size*/
 
@@ -81,7 +80,7 @@ void *myMalloc(unsigned nBytes, const char file, const int line){
 */
 static Header * myMorecore(unsigned nu){
 
-	char *cp, *getMoreMem(int);
+	char *cp;
 	Header *up;
 	Header **freep;
 	freep = &smallfreep;
@@ -101,7 +100,7 @@ static Header * myMorecore(unsigned nu){
 	up->s.usedFlag = usedFlagValue;
 	if(nu > 100) freep = &largefreep;
 	/* the free function turns the header into multiple free linkedlist data structure */
-	myfree((void *)(up+1));
+	free((void *)(up+1));
 
 	return *freep;
 }
@@ -116,16 +115,16 @@ void *getMoreMem(int neededMemory)
 	if(neededMemory / sizeof(Header) > 100)
 	{
 		/* if decreasing this pointer will cause an overlap */
-		if(largebreakpoint - neededMemory <= smallbreakpoint)	return -1;
+		if(largebreakpoint - neededMemory <= smallbreakpoint)	return (void *) -1;
 		/* else change the location of the large breakpoint by the amount of space we need */
 		else
 		{
 			largebreakpoint-=neededMemory;
-			return &(virtualMemory+largebreakpoint);
+			return virtualMemory+largebreakpoint;
 		}
 	}
 		/* if increasing this pointer will cause an overlap */
-	if(smallbreakpoint + neededMemory >= largebreakpoint)	return -1;
+	if(smallbreakpoint + neededMemory >= largebreakpoint)	return(void *) -1;
 		/*else increase the limit at which the small blocks will be and return the start of the new block */
 	else
 	{
@@ -137,7 +136,7 @@ void *getMoreMem(int neededMemory)
 /*
 *	My implementation of realloc
 */
-void *myRealloc(void *ptr, size_t size, const char file, const int line)
+void *myRealloc(void *ptr, size_t size, const char* file, const int line)
 {
 	
 	Header *Headercpy = (Header *)ptr-1;
@@ -153,7 +152,7 @@ void *myRealloc(void *ptr, size_t size, const char file, const int line)
 	*	Since the biggest of the new size and the old size becomes the size, we only change the size if the new size
 	* is larger
 	*/
-	if(headercpy->s.size > size) return ptr;
+	if(Headercpy->s.size > size) return ptr;
 
 	/*
 	*	Now the only thing you need to do is get the new size. 
@@ -163,11 +162,11 @@ void *myRealloc(void *ptr, size_t size, const char file, const int line)
 	/*
 	*	Copy the bit data into the new struct, so that it makes a complete copy.
 	*/
-	memcpy( ptrCpy , ptr , headercpy->s.size);
+	memcpy( ptrCpy , ptr , Headercpy->s.size);
 	/*
 	*	free the old pointer
 	*/
-	myFree(ptr, file, line);
+	free(ptr);
 	/*
 	*	return the new copy pointer with it's new, larger size
 	*/
@@ -176,7 +175,7 @@ void *myRealloc(void *ptr, size_t size, const char file, const int line)
 /*
 *	This is my implementation of calloc, the difference between calloc and malloc is the memset
 */
-void* myCalloc(size_t num, size_t size, const char file, const int line)
+void* myCalloc(size_t num, size_t size, const char* file, const int line)
 {
 	void *tmpVar = myMalloc(num*size, file, line);
 
@@ -189,7 +188,7 @@ void* myCalloc(size_t num, size_t size, const char file, const int line)
 *		the free function is going to deallocate a block of memory, then link the block to the free linked list
 *	Input: pointer to what we need to be inserted into the free list
 */
-void myfree(void * ap, const char line, const int line){
+void myFree(void * ap, const char* file, const int line){
 	Header *bp, *p;
 	Header **freep;
 
@@ -205,7 +204,7 @@ void myfree(void * ap, const char line, const int line){
 
 	if(bp->s.usedFlag != usedFlagValue){
 	 fprintf(stderr, "Error: The pointer you were trying to free in file:\"%s\" line :%d was never allocated\n", file, line);
-	 return NULL;
+	 return;
 	}
 	/* If you're going to free a big block */
 	if(bp->s.size > 100){
@@ -213,7 +212,7 @@ void myfree(void * ap, const char line, const int line){
 		 freep = &largefreep;
 		 /*go through the array until you find a spot where the address of bp is smaller than the address of the start of the link
 		 *but bigger than the next item on the list */
-	 	for(p = *freep; !(bp < p && bp > p->s.ptr); p = p->s.ptr))
+	 	for(p = *freep; !(bp < p && bp > p->s.ptr); p = p->s.ptr)
 		{
 			if(p <= p->s.ptr && (bp < p|| bp > p->s.ptr))
 				break;
@@ -223,6 +222,7 @@ void myfree(void * ap, const char line, const int line){
 				return;
 			}
 		}
+	}
 	 else{
 		for(p = *freep; !(bp > p && bp < p->s.ptr); p = p->s.ptr)
 			/* in the case that both pointers are the same size, and the bp's address space is in between sizes for the p and it's

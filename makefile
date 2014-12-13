@@ -1,14 +1,35 @@
 CC = gcc
 CCFLAGS = -Wall -g
-TARGET = dynamic
+EXECS = main test1 test2 test3 test4 test6
 
-all: dynamic
+ALL_OBJ = $(TARGET:%=%.o)
+ALL_TARGET = $(TARGET:%=%.c)
+DEP = dynamic.h
 
-dynamic: dynamic.o main.o
-	$(CC) $(CCFLAGS) -o books dynamic.o main.o
 
-main.o: main.c
-	$(CC) $(CCFLAGS) -c main.c
+all: $(EXECS)
 
-dynamic.o: dynamic.c
-	$(CC) $(CCFLAGS) -c dynamic.c
+%.o: %.c $(DEP)
+	$(CC) $(CCFLAGS) -c -o $@ $< $(ALL_TARGET)  
+
+main: main.o
+	$(CC) $(CCFLAGS) -o main main.o
+
+test1: test1.o
+	$(CC) $(CCFLAGS) -o test1 test1.o
+
+test2: test2.o
+	$(CC) $(CCFLAGS) -o test2 test2.o
+
+test3: test3.o
+	$(CC) $(CCFLAGS) -o test3 test3.o
+
+test4: test4.o
+	$(CC) $(CCFLAGS) -o test4 test4.o
+
+test6: test6.o
+	$(CC) $(CCFLAGS) -o test5 test6.o
+
+clean:
+	rm -f *.o $(EXECS)
+
