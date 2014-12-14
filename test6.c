@@ -1,11 +1,11 @@
-#include "dynamic.h"
-#include <stdio.h>
+#include "dynamic.c"
 
-void main()
+int main()
 {
 	
     printf("pointers that were never allocated\n");
- 	int x;
+    int x;
     free( &x );
+	return 0;
 }
 

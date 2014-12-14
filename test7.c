@@ -1,10 +1,10 @@
-#include "dynamic.h"
-#include <stdio.h>
+#include "dynamic.c"
 
-void main()
+int main()
 {
 	printf("for not returned from  malloc \n");
-        p = (char *)malloc( 200 ); 
+        char * p;
+	p = (char *)malloc( 200 ); 
         free( p + 10 );
-
+	return 0;
 }

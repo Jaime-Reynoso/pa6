@@ -1,6 +1,6 @@
 CC = gcc
 CCFLAGS = -Wall -g
-EXECS = main test1 test2 test3 test4 test6
+EXECS = main test1 test2 test3 test4 test5 test6 test7
 
 ALL_OBJ = $(TARGET:%=%.o)
 ALL_TARGET = $(TARGET:%=%.c)
@@ -27,9 +27,14 @@ test3: test3.o
 test4: test4.o
 	$(CC) $(CCFLAGS) -o test4 test4.o
 
-test6: test6.o
-	$(CC) $(CCFLAGS) -o test5 test6.o
+test5: test5.o
+	$(CC) $(CCFLAGS) -o test5 test5.o
 
+test6: test6.o
+	$(CC) $(CCFLAGS) -o test6 test6.o
+
+test7: test7.o
+	$(CC) $(CCFLAGS) -o test7 test7.o
 clean:
 	rm -f *.o $(EXECS)
 

@@ -16,7 +16,7 @@ union header{
 typedef union header Header;
 
 void* myMalloc(unsigned nbytes, const char* file, const int line);
-static Header *myMorecore(unsigned nu);
+static Header* myMorecore(unsigned nu);
 void myFree(void *ap, const char* file, const int line);
 void *getMoreMem(int neededMemory);
 void *myRealloc(void *ptr, size_t size, const char* file, const int line);

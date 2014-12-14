@@ -1,7 +1,7 @@
-#include "dynamic.h"
-#include <stdio.h>
+#include "dynamic.c"
 
-void main()
+int main()
 {
     free(NULL);
+    return 0;
 }

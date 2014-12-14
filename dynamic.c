@@ -217,6 +217,8 @@ void myFree(void * ap, const char* file, const int line)
 		fprintf(stderr, "Error: The pointer you were trying to free in file:\"%s\" line: %d was already free\n", file, line);
 		return;
 	}
+	/* the bp header should have a 0 because it's about to become free */
+	bp->s.usedFlag = 0;
 	/* If you're going to free a big block */
 	if(bp->s.size > 100)
 	{
