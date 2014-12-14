@@ -1,0 +1,215 @@
+PA6 TESTCASES
+
+Test 1:
+    free(NULL);
+    return 0;
+Output:
+
+Error: The pointer you were trying to free in file:"test1.c" line: 5 was never allocated	
+-------------------------------------------------------------------------------------------
+
+Test 2:
+   int i;
+    for(i = 0; i < 5; i++)
+    {
+        int* p = malloc(sizeof(int));
+        *p = i;
+        printf("address is %p, value is %d\n",p, *p);
+    }
+    return 0;
+
+Output:
+	address is 0x601290, value is 0
+	address is 0x6012b0, value is 1
+	address is 0x6012d0, value is 2
+	address is 0x6012f0, value is 3
+	address is 0x601310, value is 4
+--------------------------------------------------------------------------------------------
+
+Test 3:
+	int* p = malloc(sizeof(int));
+    *p = 5;
+    printf("address is %p, value is %d\n",p, *p);
+    free(p);
+    return 0;
+
+Output:
+	address is 0x601290, value is 5
+	
+---------------------------------------------------------------------------------------------
+
+Test 4:
+	int *p;
+    p = malloc(sizeof(int*));
+    free(p + 100);
+    return 0;
+
+Output:
+	Error: The pointer you were trying to free in file:"test4.c" line: 7 was already free
+------------------------------------------------------------------------------------------
+
+Test 5:
+	printf("redundant freeing\n");
+    void* p = malloc(10);
+    free(p);
+    free(p);
+    return 0;
+
+Output:
+	redundant freeing
+	Attempting to free memory that was not malloced in FILE: 'Test9.c' on LINE: '8'
+-------------------------------------------------------------------------------------------
+
+Test 6:
+    
+    printf("pointers that were never allocated\n");
+    int x;
+    free( &x );
+    return 0;
+
+
+
+Output:
+	The pointer you were trying to free in file:"test6.c" line: 8 was never allocated
+--------------------------------------------------------------------------------------------
+
+Test 7:
+	printf("for not returned from  malloc \n");
+    char * p;
+    p = (char *)malloc( 200 ); 
+    free( p + 10 );
+    return 0;
+	
+Output 7:
+	for not returned from  malloc 
+	Error: The pointer you were trying to free in file:"test7.c" line: 8 was never allocated
+
+----------------------------------------------------------------------------------------------
+
+Test Main:
+
+  		printf("mallocing p 20000\n");
+        void *p = malloc(20000);
+        printf("p 20000 '%p'\n", p);
+       
+        printf("mallocing p2 1000\n");
+        void *p2 = malloc(1000);
+        printf("p2 1000 '%p'\n", p2);
+
+        printf("reallocing p2 1500\n");
+        p2=realloc(p2,1500);
+        printf("p2 1500 '%p'\n", p2);
+
+        printf("Freeing p\n");
+        free(p);
+
+        printf("mallocing p3 99\n");
+        void *p3 = malloc(99);
+
+        printf("p3 99 '%p'\n", p3);
+
+        printf("Free p2\n");
+
+        free(p2);
+
+        printf("Free p3\n");
+
+        free(p3);
+        
+        printf("done with simple test\n");
+
+        return 0;
+
+
+Output:
+
+	mallocing p 20000
+	Error: There's not enough memory to allocate line 8 in file main.c 
+	p 20000 '(nil)'
+	mallocing p2 1000
+	p2 1000 '0x6014b0'
+	reallocing p2 1500
+	p2 1500 '0x6018b0'
+	callocing a 10
+	a 10 '0x601870'
+	Freeing p
+	Error: The pointer you were trying to free in file:"main.c" line: 24 was never allocated
+	mallocing p3 99
+	p3 99 '0x6017f0'
+	Free p2
+	Free p3
+	Free a
+	done with simple test
+
+-----------------------------------------------------------------------------------------------
+
+test8:
+
+    int *p, i;
+    p = malloc(sizeof(int) * 7);
+    
+    for(i = 0; i < 7; i++){
+        p[i] = 3;
+    } 
+    
+    for(i = 0; i < 7; i++){
+        printf("The value at %d is %d \n", i, p[i]);
+    }
+
+    printf("The address is %p\n", p);
+    
+    p = realloc(p, sizeof(int )*9);
+    for(i = 0; i < 7; i++){
+        printf("The value at %d is %d \n", i, p[i]);
+    } 
+    printf("The address is %p\n", p);
+
+    p = realloc(p, sizeof(int)*3);
+    printf("The address is %p\n", p);
+
+    return 0;
+
+Output:
+    Here we're testing the Realloc function. We're allocating p, and inserting 7 int = 3
+    The value at 0 is 3
+    The value at 1 is 3
+    The value at 2 is 3
+    The value at 3 is 3
+    The value at 4 is 3
+    The value at 5 is 3
+    The value at 6 is 3
+    The original address of p is 0x108ed9090
+    Now, we realloc p to something larger and the integers should still be in there
+    The value at 0 is 3
+    The value at 1 is 3
+    The value at 2 is 3
+    The value at 3 is 3
+    The value at 4 is 3
+    The value at 5 is 3
+    The value at 6 is 3
+    The changed address is 0x108ed90c0
+    Here we are calling realloc to make the pointer smaller, but it should still be the same
+    The address is 0x108ed90c0
+    
+
+
+--------------------------------------------------------------------------------------------------
+
+Test9:
+    int *p = calloc(7, sizeof(int));
+    int n;
+    for(n = 0; n < 7; n++){
+        printf("This is it: %d \n", p[n]);
+    }
+    return 0;
+
+Output:
+    Now we're testing whether calloc zero initialized everything
+    This is it: 0
+    This is it: 0
+    This is it: 0
+    This is it: 0
+    This is it: 0
+    This is it: 0
+    This is it: 0
+
