@@ -1,5 +1,4 @@
-#include "dynamic.h"
-#include <stdio.h>
+#include "dynamic.c"
 
 int main()
 {

@@ -205,7 +205,7 @@ void myFree(void * ap, const char* file, const int line)
 	* to free blocks until we  reach a point where the address space is bigger than the previous block and smaller than the 
 	* next link in the free block linked list */
 
-	if(bp < virtualMemory || bp > virtualMemory+ 4999)
+	if((char *)bp < virtualMemory || (char *)bp > virtualMemory+ 4999)
 	{
 		fprintf(stderr, "Error: The pointer you were trying to free in file:\"%s\" line: %d was never allocated\n", file, line);
 	 	return;

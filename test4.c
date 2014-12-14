@@ -2,6 +2,7 @@
 
 int main()
 {
-	malloc(0);
-	return 0;
+	int *p;
+	p = malloc(sizeof(int*));
+	free(p + 100);
 }
