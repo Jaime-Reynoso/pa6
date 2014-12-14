@@ -45,7 +45,7 @@ void *myMalloc(unsigned nBytes, const char* file, const int line){
 	if((prevp = *freep) == NULL){
 		base[difference].s.ptr = *freep = prevp = base+difference;
 		base[difference].s.size = 0;
-		base[difference].s.usedFlag =(short int) usedFlagValue;
+
 	}
 	/* Now we need to traverse the free list and retrieve a formidable size*/
 
@@ -64,6 +64,7 @@ void *myMalloc(unsigned nBytes, const char* file, const int line){
 			}
 
 			*freep = prevp; /*freep points to the beginning of the free linked list structure */
+			p->s.usedFlag = usedFlagValue;
 			return (void*) (p+1); /* since we use 1 for the size, we return a pointer to where the structure will be hold */
 		}
 		if ( p == *freep) /* This is the case in which we cannot find a space large enough */
@@ -188,7 +189,8 @@ void* myCalloc(size_t num, size_t size, const char* file, const int line)
 *		the free function is going to deallocate a block of memory, then link the block to the free linked list
 *	Input: pointer to what we need to be inserted into the free list
 */
-void myFree(void * ap, const char* file, const int line){
+void myFree(void * ap, const char* file, const int line)
+{
 	Header *bp, *p;
 	Header **freep;
 
@@ -198,16 +200,26 @@ void myFree(void * ap, const char* file, const int line){
 	* ap-1, which is where we store the head */
 
 	bp = (Header *)ap - 1;
+
 	/* since we store the address spaces in terms of the relative size, we traverse the start of the linked list
 	* to free blocks until we  reach a point where the address space is bigger than the previous block and smaller than the 
 	* next link in the free block linked list */
 
-	if(bp->s.usedFlag != usedFlagValue){
-	 fprintf(stderr, "Error: The pointer you were trying to free in file:\"%s\" line :%d was never allocated\n", file, line);
-	 return;
+	if(bp < virtualMemory || bp > virtualMemory+ 4999)
+	{
+		fprintf(stderr, "Error: The pointer you were trying to free in file:\"%s\" line: %d was never allocated\n", file, line);
+	 	return;
+	}
+	/*the dirty flag makes sure that someone didn't already free the pointer and wanted to free it again */
+
+	if(bp->s.usedFlag != usedFlagValue)
+	{
+		fprintf(stderr, "Error: The pointer you were trying to free in file:\"%s\" line: %d was already free\n", file, line);
+		return;
 	}
 	/* If you're going to free a big block */
-	if(bp->s.size > 100){
+	if(bp->s.size > 100)
+	{
 		/*reference the big block pointer */
 		 freep = &largefreep;
 		 /*go through the array until you find a spot where the address of bp is smaller than the address of the start of the link
@@ -216,14 +228,10 @@ void myFree(void * ap, const char* file, const int line){
 		{
 			if(p <= p->s.ptr && (bp < p|| bp > p->s.ptr))
 				break;
-			/* In the case that you free a pointer twice, then the function will print out the error and return NULL */
-			if(bp == p || bp == p->s.ptr){
-				fprintf(stderr, "Error: You have already freed pointer in file \"%s\" line: %d", file, line);
-				return;
-			}
 		}
 	}
-	 else{
+	 else
+	 {
 		for(p = *freep; !(bp > p && bp < p->s.ptr); p = p->s.ptr)
 			/* in the case that both pointers are the same size, and the bp's address space is in between sizes for the p and it's
 			* pointer */
@@ -234,13 +242,15 @@ void myFree(void * ap, const char* file, const int line){
 	/* if the block that is being freed is the same size as the next block, then instead of having 2 sizes variable for 2 blocks
 	* you would be better off having more free space and having one size (aka combining both) */
 
-	if( bp + bp->s.size == p->s.ptr){
+	if( bp + bp->s.size == p->s.ptr)
+	{
 		bp->s.size += p->s.ptr->s.size;
 		bp->s.ptr = p->s.ptr->s.ptr;
 	} else /*if not then make the pointer of this header point to the next link */
 		bp -> s.ptr = p -> s.ptr;
 	/* If the pointer is just as large as bp then it makes a lot of sense to combine them into one block */
-	if( p + p->s.size == bp){
+	if( p + p->s.size == bp)
+	{
 		p->s.size += bp->s.size;
 		p->s.ptr = bp->s.ptr;
 	}
